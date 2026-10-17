@@ -1,0 +1,62 @@
+{
+  "python": "3.10.20",
+  "platform": "Windows-10-10.0.26100-SP0",
+  "packages": {
+    "tensorflow": "2.16.1",
+    "numpy": "1.26.4",
+    "scipy": "1.13.1",
+    "matplotlib": "3.8.4"
+  },
+  "dependency_check": "uv pip check: all 48 installed packages compatible",
+  "original_commit": "60da7db86b02426acf0a092af54891191645a0c5",
+  "checks": [
+    "Four upstream files retain exact Git blob bytes and SHA-256 hashes",
+    "Boundary PNG extracted without replotting and SHA-256 recorded",
+    "Original upstream commit remains an ancestor of HEAD",
+    "Model, data, configuration, training, prediction, and relative-error source match originals by Python AST",
+    "Plot calculation source matches except destination path and label spelling",
+    "Cleaned notebook code compiles and committed copies contain no outputs"
+  ],
+  "execution_checks": [
+    {
+      "experiment": "boundary",
+      "iterations": 2,
+      "prediction_passes": 8,
+      "full_course_counts": false,
+      "observation_shape": [
+        40,
+        1
+      ],
+      "collocation_shape": [
+        200,
+        1
+      ],
+      "prediction_shape": [
+        200,
+        8
+      ],
+      "finite_predictions_and_losses": true
+    },
+    {
+      "experiment": "material",
+      "iterations": 2,
+      "prediction_passes": 8,
+      "full_course_counts": false,
+      "observation_shape": [
+        200,
+        1
+      ],
+      "collocation_shape": [
+        100,
+        1
+      ],
+      "prediction_shape": [
+        200,
+        8
+      ],
+      "finite_predictions_and_losses": true
+    }
+  ],
+  "full_training_reproduced": false,
+  "qualification": "Two-iteration execution checks are not trained-result reproductions; original figures and printed errors remain historical artifacts."
+}

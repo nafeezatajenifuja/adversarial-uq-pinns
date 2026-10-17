@@ -1,0 +1,4 @@
+* text=auto eol=lf
+notebooks/original/** -text
+provenance/upstream_README.md -text
+*.png -text

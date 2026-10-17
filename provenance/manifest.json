@@ -1,0 +1,48 @@
+{
+  "upstream_repository": "https://github.com/TaiwoAdebiyi23/UQPINNS-GANS-ELEC_576-",
+  "upstream_commit": "60da7db86b02426acf0a092af54891191645a0c5",
+  "team": [
+    "Akash Yadav",
+    "Taiwo A. Adebiyi",
+    "Nafeezat Ajenifuja"
+  ],
+  "artifacts": [
+    {
+      "upstream_path": "README.md",
+      "path": "provenance/upstream_README.md",
+      "git_blob": "acb98575abeecb4df4875e83c40579d43aa1f0f5",
+      "sha256": "5aac3b0032be9c286278aa0d760b338fe3965b884445695150d6614aac69d105",
+      "bytes": 1967
+    },
+    {
+      "upstream_path": "UQPINNs_EX2_BC.ipynb",
+      "path": "notebooks/original/UQPINNs_EX2_BC.ipynb",
+      "git_blob": "d4d5eeddcc95ffaa0b1926e0a4dd221b90fc8c0c",
+      "sha256": "69823f9f2ebfb7316cf56254a9ed72eb3e9136afd50902e4e195acee84a243b9",
+      "bytes": 594133
+    },
+    {
+      "upstream_path": "UQPINNs_EX2_E.ipynb",
+      "path": "notebooks/original/UQPINNs_EX2_E.ipynb",
+      "git_blob": "dbd7ea24940f261e1b8058ab0280f4bb54af7c01",
+      "sha256": "c6f94e52e33b42570007345a449b43e35d05da48c1f7807aad3764c5a329ba0b",
+      "bytes": 595877
+    },
+    {
+      "upstream_path": "UQ_with_GAN4.png",
+      "path": "figures/UQ_with_GAN4.png",
+      "git_blob": "c2a73b4a96c700ab21253062694b91f3eb4209f3",
+      "sha256": "888677acec1f1deccc1c9547e2285de95e60459e6638a90f785ab7c45c81fbe7",
+      "bytes": 158707
+    }
+  ],
+  "extracted_outputs": [
+    {
+      "source": "UQPINNs_EX2_BC.ipynb",
+      "cell_index": 9,
+      "mime_type": "image/png",
+      "path": "figures/boundary_uncertainty_original.png",
+      "sha256": "480357db8876f51cc556706ccadc744d804f8fc1f27d83c4bcc31dfbbf771d6f"
+    }
+  ]
+}
