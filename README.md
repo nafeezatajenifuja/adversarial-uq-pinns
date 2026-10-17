@@ -1,49 +1,47 @@
 # Adversarial Uncertainty Quantification with Physics-Informed Neural Networks
 
-## Overview
+Adversarial physics-informed learning for uncertain beam response.
 
-We combined adversarial learning with a physics-informed neural network to investigate variability in a synthetic beam-deflection example. A latent-conditioned generator learns from uncertain observations while an automatic-differentiation residual regularizes its predictions.
+![Material-uncertainty experiment showing observations, reference response, predictive mean, and a two-standard-deviation band](figures/UQ_with_GAN4.png)
 
-This is an attributed portfolio copy of the original three-person project, with its Git history and original notebooks retained.
+When observations or system properties are uncertain, a single predicted response can hide how much the model’s output may vary. In this project, we explored how that variability can be represented within a physics-informed neural-network framework.
 
-## Problem
+The model combines observed responses with latent-variable sampling and adversarial training, while automatic differentiation introduces a differential-equation residual during learning. Rather than producing only one response, repeated latent samples allow the variability of the model prediction to be examined at locations along the beam.
 
-The project studies cantilever-beam response under uncertain material properties and boundary values. Both experiments construct observations from the notebook's cubic reference, `u(x) = -50*x**3/(3*E*I)`, on `0 <= x <= 1`.
+We studied two cantilever-beam experiments. One introduces uncertainty through the boundary observations, while the other varies Young’s modulus when generating the training data. The predicted mean and pointwise variability are then compared with a nominal reference response.
 
-One experiment adds Gaussian offsets to endpoint values. The other draws Young's modulus from a Gaussian distribution and generates deflections at interior and endpoint locations. The imposed physics residual remains fixed at its nominal form in both experiments.
+## How the model works
 
-## Method
+1. A generator/decoder receives a normalized spatial coordinate and a Gaussian latent input, then predicts the response.
+2. An encoder receives the coordinate and generated response, then reconstructs the latent input.
+3. A discriminator compares generated samples with observed coordinate–response pairs.
+4. Automatic differentiation evaluates the physics residual at collocation points. Generator/encoder training combines adversarial, latent-reconstruction, and physics-residual terms.
 
-The implementation uses three fully connected networks:
-
-| Network | Purpose | Hidden layers |
-| --- | --- | --- |
-| Generator/decoder | Maps position and a scalar Gaussian latent variable to deflection | Four layers of 50 units |
-| Encoder | Reconstructs the latent variable from position and generated deflection | Four layers of 50 units |
-| Discriminator | Distinguishes observed position/deflection pairs from generated pairs | Two layers of 50 units |
-
-Hidden layers use tanh activations and outputs are linear. The discriminator loss applies a sigmoid to its scores. The generator/encoder objective combines an adversarial score, a latent-reconstruction penalty, and the mean squared physics residual. The executed residual is the second-order equation `u_xx + 5*x = 0`, evaluated with the input-normalization correction.
+The generator and encoder each have four 50-unit tanh hidden layers; the discriminator has two. Training alternates discriminator updates with joint generator/encoder updates.
 
 ## Experiment
 
-Both notebooks configure 30,000 full-batch training iterations. Each iteration uses one discriminator update and five joint generator/encoder updates, with Adam learning rates of `1e-4`.
+Both experiments use a one-dimensional cantilever-beam response on `x ∈ [0,1]` and enforce the same nominal second-order physics residual. In the boundary experiment, variability is introduced through repeated endpoint observations. In the material experiment, observations are generated using repeated samples of Young’s modulus.
 
-| Experiment | Synthetic observations | Collocation points |
-| --- | --- | --- |
-| [Boundary uncertainty](notebooks/boundary_uncertainty.ipynb) | 20 endpoint pairs with shared Gaussian offsets within each pair | 200 |
-| [Material uncertainty](notebooks/material_uncertainty.ipynb) | 20 modulus draws, each evaluated at 10 positions | 100 |
+After training, the model is sampled repeatedly at positions along the beam to estimate the predictive mean and pointwise variability. Full network settings and training parameters are documented in the numerical notes.
 
-## Predictive uncertainty
+## What the result shows
 
-The generator is sampled 2,000 times at 200 reference locations. The notebooks compute pointwise sample means and variances, then plot the mean with a two-standard-deviation band. Each sampling pass uses an independent latent value at each coordinate. The displayed band summarizes generated variability; the project does not measure its coverage.
+The opening figure is the preserved material-uncertainty result. Black crosses mark synthetic observations, the blue line is the nominal reference, and the red dashed line is the predictive mean. The orange region shows the mean plus or minus two sampled standard deviations.
 
-## Technology
+The predictive mean follows the nominal reference in this recorded run, while the shaded region displays variability generated by the model. Sampling is pointwise: each spatial coordinate receives an independent latent input.
 
-Python, TensorFlow through `tensorflow.compat.v1`, NumPy, SciPy, and Matplotlib. Saved notebook outputs identify Python 3.10.12 and TensorFlow 2.16.1. The [requirements](requirements.txt) retain that TensorFlow version and pin the other numerical libraries for the separately documented validation environment.
+## Implementation
 
-## Reproducing the experiment
+The notebooks use Python, TensorFlow’s `compat.v1` graph/session API, NumPy, SciPy, and Matplotlib.
 
-Use an activated Python 3.10 virtual environment:
+- [Material uncertainty](notebooks/material_uncertainty.ipynb) — observations generated using uncertain Young’s modulus.
+- [Boundary uncertainty](notebooks/boundary_uncertainty.ipynb) — paired endpoint observations with Gaussian offsets.
+- [Experiment runner](scripts/run_experiment.py) — executes the cleaned notebook cells without a notebook interface.
+
+## Running the experiments
+
+Installation and short execution checks were validated with Python 3.10.20 and TensorFlow 2.16.1. Use an activated Python 3.10 environment:
 
 ```bash
 git clone https://github.com/nafeezatajenifuja/adversarial-uq-pinns.git
@@ -52,46 +50,16 @@ python -m pip install -r requirements.txt
 python scripts/run_experiment.py --experiment material
 ```
 
-Select `--experiment boundary` for the other experiment, or open either cleaned notebook in a Jupyter-compatible editor. The default CLI settings retain 30,000 iterations and 2,000 predictive sampling passes. New figures are written under `figures/generated/`.
+Start with the material-uncertainty notebook for an interactive walkthrough. To run the other experiment, select `--experiment boundary`.
 
-For a short execution check, use `--iterations 2 --samples 8`; this checks the workflow without reproducing a trained result. See the [numerical and reproduction notes](docs/numerical_notes.md) for environment setup, seed behavior, and scientific qualifications.
+The runner uses the original training and sampling counts by default. New plots are written to `figures/generated/`. Full-training reproduction and environment details are documented in the [numerical notes](docs/numerical_notes.md).
 
-## Repository structure
-
-```text
-notebooks/
-    boundary_uncertainty.ipynb
-    material_uncertainty.ipynb
-    original/                       # unchanged team notebooks and saved outputs
-figures/                            # preserved historical figures
-scripts/                            # headless execution and provenance checks
-docs/                               # inspection, numerical notes, and portfolio copy
-provenance/                         # upstream snapshot and artifact hashes
-requirements.txt
-references.bib
-```
-
-## Results
-
-![Historical material-uncertainty experiment: observations, nominal reference, predictive mean, and two-standard-deviation band](figures/UQ_with_GAN4.png)
-
-The black crosses show synthetic observations, the blue curve is the nominal cubic reference, and the dashed red curve is the generated predictive mean. The orange region is the sampled mean plus or minus two standard deviations. This is the existing team-project figure, preserved unchanged. Its original axis label is retained; physical-unit scaling is discussed in the numerical notes.
-
-The notebooks also compute relative Euclidean error of the predictive mean against the nominal reference. They do not include a separate test dataset, uncertainty-calibration study, or benchmark timing comparison.
-
-## Provenance and team
+## Background
 
 This project was completed collaboratively by Akash Yadav, Taiwo A. Adebiyi, and Nafeezat Ajenifuja as the final project for ELEC/COMP 576, Introduction to Deep Learning, at Rice University.
 
-Original team repository: [TaiwoAdebiyi23/UQPINNS-GANS-ELEC_576-](https://github.com/TaiwoAdebiyi23/UQPINNS-GANS-ELEC_576-).
+The [original team repository](https://github.com/TaiwoAdebiyi23/UQPINNS-GANS-ELEC_576-) records the collaborative project. The [original notebooks](notebooks/original/) retain their saved outputs.
 
-The original README identifies the team as University of Houston PhD students enrolled in the Rice course. This copy retains the original Git commit and all three team members' attribution. Portfolio organization and reproducibility additions are documented separately from the original scientific work in [the inspection and provenance notes](docs/inspection.md).
+The technical foundations are Goodfellow et al., [Generative Adversarial Nets](https://proceedings.neurips.cc/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html) (2014), and Yang and Perdikaris, [Adversarial uncertainty quantification in physics-informed neural networks](https://arxiv.org/abs/1811.04026) (2019). Bibliographic entries are retained in [references.bib](references.bib).
 
-## References
-
-The project implements ideas from established adversarial and physics-informed learning methods:
-
-- Goodfellow et al. (2014), [Generative Adversarial Nets](https://proceedings.neurips.cc/paper/2014/hash/f033ed80deb0234979a61f95710dbe25-Abstract.html).
-- Yang and Perdikaris (2019), [Adversarial uncertainty quantification in physics-informed neural networks](https://arxiv.org/abs/1811.04026), Journal of Computational Physics, 394, 136–152.
-
-The original bibliography is retained in [references.bib](references.bib), with the broken Goodfellow proceedings link corrected.
+Detailed losses, numerical qualifications, reproducibility controls, and changes from the original notebooks are recorded in the [numerical notes](docs/numerical_notes.md).

@@ -14,7 +14,7 @@ Three-person course project combining adversarial learning and physics-informed 
 
 ## CV bullet
 
-Co-developed a three-person TensorFlow project combining adversarial learning and physics-informed neural networks to study synthetic beam-response variability under uncertain boundary values and material properties.
+Collaborated on an adversarial physics-informed neural-network model for uncertain beam response, combining latent-variable sampling, automatic differentiation, and adversarial training across boundary- and material-uncertainty experiments.
 
 ## Website description
 
